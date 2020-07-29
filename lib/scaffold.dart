@@ -83,6 +83,10 @@ class BackdropScaffold extends StatefulWidget {
   /// The widget that is shown as sub-header on top of the front layer.
   final Widget subHeader;
 
+  final Widget drawer;
+
+  final Widget endDrawer;
+
   /// This boolean flag keeps subHeader active when [backLayer] is visible. Defaults to true.
   final bool subHeaderAlwaysActive;
 
@@ -208,6 +212,8 @@ class BackdropScaffold extends StatefulWidget {
     this.floatingActionButtonAnimator,
     this.onBackLayerConcealed,
     this.onBackLayerRevealed,
+    this.drawer,
+    this.endDrawer,
   });
 
   @override
@@ -269,6 +275,17 @@ class BackdropScaffoldState extends State<BackdropScaffold>
         // All we want is for the widget to rebuild and read the new animation
         // state from the AnimationController.
         // see https://github.com/flutter/flutter/pull/55414/commits/72d7d365be6639271a5e88ee3043b92833facb79
+      });
+    });
+  }
+
+  @override
+  void didUpdateWidget(BackdropScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _backPanelHeight = _getBackPanelHeight();
+        _headerHeight = _getHeaderHeight();
       });
     });
   }
@@ -505,6 +522,8 @@ class BackdropScaffoldState extends State<BackdropScaffold>
         ),
         floatingActionButton: this.widget.floatingActionButton,
         resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+        drawer: widget.drawer,
+        endDrawer: widget.endDrawer,
       ),
     );
   }
