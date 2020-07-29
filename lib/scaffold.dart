@@ -1,6 +1,7 @@
 import 'package:backdrop/app_bar.dart';
 import 'package:backdrop/button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 /// This class is an InheritedWidget that exposes state of [BackdropScaffold]
 /// [BackdropScaffoldState] to be accessed from anywhere below the widget tree.
@@ -86,6 +87,8 @@ class BackdropScaffold extends StatefulWidget {
   final Widget drawer;
 
   final Widget endDrawer;
+
+  final Widget bottomNavigationBar;
 
   /// This boolean flag keeps subHeader active when [backLayer] is visible. Defaults to true.
   final bool subHeaderAlwaysActive;
@@ -185,7 +188,7 @@ class BackdropScaffold extends StatefulWidget {
     this.controller,
     @Deprecated("Replace by use of BackdropAppBar. See BackdropAppBar.title."
         "This feature was deprecated after v0.2.17.")
-    this.title,
+        this.title,
     this.appBar,
     this.backLayer,
     this.frontLayer,
@@ -193,7 +196,7 @@ class BackdropScaffold extends StatefulWidget {
     this.subHeaderAlwaysActive = true,
     @Deprecated("Replace by use of BackdropAppBar. See BackdropAppBar.actions."
         "This feature was deprecated after v0.2.17.")
-    this.actions = const <Widget>[],
+        this.actions = const <Widget>[],
     this.headerHeight,
     this.frontLayerBorderRadius = const BorderRadius.only(
       topLeft: Radius.circular(16.0),
@@ -202,7 +205,7 @@ class BackdropScaffold extends StatefulWidget {
     @Deprecated("Replace by use of BackdropAppBar. See BackdropAppBar.leading"
         "and BackdropAppBar.automaticallyImplyLeading."
         "This feature was deprecated after v0.2.17.")
-    this.iconPosition = BackdropIconPosition.leading,
+        this.iconPosition = BackdropIconPosition.leading,
     this.stickyFrontLayer = false,
     this.animationCurve = Curves.easeInOut,
     this.resizeToAvoidBottomInset = true,
@@ -215,6 +218,7 @@ class BackdropScaffold extends StatefulWidget {
     this.onBackLayerRevealed,
     this.drawer,
     this.endDrawer,
+    this.bottomNavigationBar,
   }) : super(key: key);
 
   @override
@@ -307,7 +311,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
   /// Wether the back layer is concealed or not.
   bool get isBackLayerConcealed =>
       controller.status == AnimationStatus.completed ||
-          controller.status == AnimationStatus.forward;
+      controller.status == AnimationStatus.forward;
 
   /// Deprecated. Use [isBackLayerRevealed] instead.
   ///
@@ -319,7 +323,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
   /// Whether the back layer is revealed or not.
   bool get isBackLayerRevealed =>
       controller.status == AnimationStatus.dismissed ||
-          controller.status == AnimationStatus.reverse;
+      controller.status == AnimationStatus.reverse;
 
   /// Toggles the backdrop functionality.
   ///
@@ -374,8 +378,8 @@ class BackdropScaffoldState extends State<BackdropScaffold>
 
     // if subHeader then height of subHeader
     return ((_subHeaderKey.currentContext?.findRenderObject() as RenderBox)
-        ?.size
-        ?.height) ??
+            ?.size
+            ?.height) ??
         32.0;
   }
 
@@ -383,7 +387,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
       ((_backLayerKey.currentContext?.findRenderObject() as RenderBox)
           ?.size
           ?.height) ??
-          0.0;
+      0.0;
 
   Animation<RelativeRect> _getPanelAnimation(
       BuildContext context, BoxConstraints constraints) {
@@ -471,6 +475,11 @@ class BackdropScaffoldState extends State<BackdropScaffold>
                 ),
                 // frontLayer
                 Flexible(child: widget.frontLayer),
+                if (_controller.value == 0 &&
+                    widget.bottomNavigationBar != null)
+                  Container(
+                    height: 56,
+                  ),
               ],
             ),
             _buildInactiveLayer(context),
@@ -492,40 +501,54 @@ class BackdropScaffoldState extends State<BackdropScaffold>
     return WillPopScope(
       onWillPop: () => _willPopCallback(context),
       child: Scaffold(
-        key: scaffoldKey,
-        floatingActionButtonLocation: this.widget.floatingActionButtonLocation,
-        floatingActionButtonAnimator: this.widget.floatingActionButtonAnimator,
-        appBar: widget.appBar ??
-            AppBar(
-              title: widget.title,
-              actions: widget.iconPosition == BackdropIconPosition.action
-                  ? <Widget>[BackdropToggleButton()] + widget.actions
-                  : widget.actions,
-              elevation: 0.0,
-              leading: widget.iconPosition == BackdropIconPosition.leading
-                  ? BackdropToggleButton()
-                  : null,
-            ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            return Container(
-              child: Stack(
-                children: <Widget>[
-                  _buildBackPanel(),
-                  PositionedTransition(
-                    rect: _getPanelAnimation(context, constraints),
-                    child: _buildFrontPanel(context),
-                  ),
-                ],
+          key: scaffoldKey,
+          floatingActionButtonLocation:
+              this.widget.floatingActionButtonLocation,
+          floatingActionButtonAnimator:
+              this.widget.floatingActionButtonAnimator,
+          appBar: widget.appBar ??
+              AppBar(
+                title: widget.title,
+                actions: widget.iconPosition == BackdropIconPosition.action
+                    ? <Widget>[BackdropToggleButton()] + widget.actions
+                    : widget.actions,
+                elevation: 0.0,
+                leading: widget.iconPosition == BackdropIconPosition.leading
+                    ? BackdropToggleButton()
+                    : null,
               ),
-            );
-          },
-        ),
-        floatingActionButton: this.widget.floatingActionButton,
-        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-        drawer: widget.drawer,
-        endDrawer: widget.endDrawer,
-      ),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                child: Stack(
+                  children: <Widget>[
+                    _buildBackPanel(),
+                    PositionedTransition(
+                      rect: _getPanelAnimation(context, constraints),
+                      child: _buildFrontPanel(context),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          floatingActionButton: this.widget.floatingActionButton,
+          resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+          drawer: widget.drawer,
+          endDrawer: widget.endDrawer,
+          bottomNavigationBar: widget.bottomNavigationBar != null
+              ? AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(
+                      0,
+                      (1 - _controller.value) * 56,
+                    ),
+                    child: _controller.value == 0 ? null : child,
+                  ),
+                  child: widget.bottomNavigationBar,
+                )
+              : null),
     );
   }
 
