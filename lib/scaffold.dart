@@ -501,6 +501,8 @@ class BackdropScaffoldState extends State<BackdropScaffold>
     return WillPopScope(
       onWillPop: () => _willPopCallback(context),
       child: Scaffold(
+          backgroundColor: this.widget.backLayerBackgroundColor ??
+              Theme.of(context).scaffoldBackgroundColor,
           key: scaffoldKey,
           floatingActionButtonLocation:
               this.widget.floatingActionButtonLocation,
